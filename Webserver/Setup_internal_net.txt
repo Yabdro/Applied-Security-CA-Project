@@ -1,0 +1,23 @@
+Setup internal network:
+    - Go to settings on the VM, go to Network, select Internal Network, use standard 'intnet'
+    - Startup VM, add following lines to /etc/network/interfaces:
+    ```
+    auto enp0s8
+    iface enp0s8 inet static
+        address 192.168.1.111
+        netmask 255.255.255.0
+        network 192.168.1.0
+    ```
+    - Repeat for every VM, using different addresses
+    - `systemctl restart networking`
+    - check network interfaces with `ip addr`
+    - modify /etc/hosts file to have aliases for other VMs. like '192.168.1.112   Dakota' 
+    - Now you can use e.g. 'ssh dakota@Dakota' to connect from one VM to other
+    - For webserver:
+        - Add second network interface with type 'Bridged Adapter', choose your systems NIC and
+            You should be able to see the Webserver as a physiscal machine on your network
+    - Remember the IP address of the webserver on your local network, then connect to it usign ssh or https
+
+
+
+
