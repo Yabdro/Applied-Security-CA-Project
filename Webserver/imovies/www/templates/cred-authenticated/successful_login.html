@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title> Welcome to iMovies </title>
+</head>
+
+<body>
+	<h1> Welcome to iMovies, {{ user.firstname }} {{ user.lastname }}</h1>
+
+	<h3>You successfully authenticated yourself using credentials!</h3>
+	<p> You can update the following credentials if you wish: </p>
+
+	<form action="/update_cred" method="post">
+		<div class="container">
+
+			<label for="psw"><b>Password</b></label>
+			<input type="password" placeholder="Enter Password" name="psw">
+			<label for="email"><b>Email</b></label>
+			<input type="text" placeholder={{user.email}} name="email">
+			<label for="psw"><b>First Name</b></label>
+			<input type="text" placeholder={{user.firstname}} name="firstname">
+			<label for="psw"><b>Last Name</b></label>
+			<input type="text" placeholder={{user.lastname}} name="lastname">
+
+			<button type="submit">Submit Changes</button>
+		</div>
+	</form>
+	<p>Choose one of the below functionalities</p>
+	<a href="/issue_cert">Issue a new certificate</a>
+	<a href="/revoke_cert">Revoke an existing certificate</a>
+</body>
+
+</html>
