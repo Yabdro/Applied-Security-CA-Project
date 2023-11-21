@@ -5,13 +5,9 @@ from www import app
 from www import models
 import jwt
 from datetime import datetime, timedelta
-from hashlib import sha256
 
 JWT_VALIDITY = 20 
 JWT_ALGORITHM = "HS512"
-
-def check_sha256(hash: str, plaintext:str) -> bool:
-    return sha256(plaintext.encode()).hexdigest() == hash
 
 def auth_user(uid:str, password: str) -> jwt:
     user = models.get_user(uid)
@@ -49,10 +45,6 @@ def token_required(f):
         except:
             return make_response('unauthorized', 401)
         
-        # Check uid in url corresponds to uid in token
-        if kwargs.__contains__("hashed_uid") and not check_sha256(hash=kwargs["hashed_uid"], plaintext=uid):           
-            return make_response('unauthorized', 401)
-
         # Get user associated with uid in token 
         logged_u = models.get_user(uid)
         

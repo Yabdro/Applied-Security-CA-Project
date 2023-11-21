@@ -49,35 +49,31 @@ def test_suite4():
     global token
     token = r.json()["token"]
 
-def test_suite5():
-    print("\n\n-------------- query invalid user url --------------\n\n")
-    r = requests.get(url=f"{base_url}/users/{hashed_uid}a", headers={"x-access-token": token}, verify=verify, cert=cert)
-    assert r.status_code == unauthorized
 
 def test_suite6():
     print("\n\n-------------- get user info with valid access token --------------\n\n")
-    r = requests.get(url=f"{base_url}/users/{hashed_uid}", headers={"x-access-token": token}, verify=verify, cert=cert)
+    r = requests.get(url=f"{base_url}/users", headers={"x-access-token": token}, verify=verify, cert=cert)
     assert r.status_code == ok
 
 def test_suite7():
     print("\n\n-------------- update user info without access token --------------\n\n")
-    r = requests.post(url=f"{base_url}/users/{hashed_uid}", verify=verify, cert=cert)
+    r = requests.post(url=f"{base_url}/users", verify=verify, cert=cert)
     assert r.status_code == unauthorized
 
 def test_suite8():
     print("\n\n-------------- update user info without updates --------------\n\n")
-    r = requests.post(url=f"{base_url}/users/{hashed_uid}", headers={"x-access-token": token}, verify=verify, cert=cert)
+    r = requests.post(url=f"{base_url}/users", headers={"x-access-token": token}, verify=verify, cert=cert)
     assert r.status_code == server_err
 
 def test_suite9():
     print("\n\n-------------- update user info with empty updates --------------\n\n")
-    r = requests.post(url=f"{base_url}/users/{hashed_uid}", json={}, headers={"x-access-token": token}, verify=verify, cert=cert)
+    r = requests.post(url=f"{base_url}/users", json={}, headers={"x-access-token": token}, verify=verify, cert=cert)
     assert r.status_code == created
 
 def test_suite10():
     print("\n\n-------------- update all user info --------------\n\n")
     update = {"firstname": "tst", "lastname": "tst", "email": "tst@imovies.ch", "pwd": "tst"}
-    r = requests.post(url=f"{base_url}/users/{hashed_uid}", json=update, headers={"x-access-token": token}, verify=verify, cert=cert)
+    r = requests.post(url=f"{base_url}/users", json=update, headers={"x-access-token": token}, verify=verify, cert=cert)
     assert r.status_code == created
     print("\n\n-------------- check we can't login with previous credentials --------------\n\n")
     r = requests.post(url=f"{base_url}/login", json=cred, verify=verify, cert=cert)
@@ -86,6 +82,6 @@ def test_suite10():
 def test_suite11():
     print("\n\n-------------- reset all user info --------------\n\n")
     update = {"uid":"ts", "firstname": "test", "lastname": "test", "email": "test", "pwd": "test"}
-    r = requests.post(url=f"{base_url}/users/{hashed_uid}", json=update, headers={"x-access-token": token}, verify=verify, cert=cert)
+    r = requests.post(url=f"{base_url}/users", json=update, headers={"x-access-token": token}, verify=verify, cert=cert)
     assert r.status_code == created
 

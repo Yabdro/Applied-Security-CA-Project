@@ -26,15 +26,15 @@ def login():
 
 
 # Get user information in database
-@app.route("/users/<hashed_uid>", methods=["GET"])
+@app.route("/users", methods=["GET"])
 @auth.token_required
-def get_info(u: models.Users, hashed_uid: str):
+def get_info(u: models.Users):
     return make_response(u.json(), codes.all_ok)
 
 # Apply changes to a user data
-@app.route("/users/<hashed_uid>", methods=["POST"])
+@app.route("/users", methods=["POST"])
 @auth.token_required
-def change_info(u: models.Users, hashed_uid: str):
+def change_info(u: models.Users):
     
     # Get the required updates
     try:
