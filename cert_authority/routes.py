@@ -10,27 +10,12 @@ from cryptography.hazmat.primitives.asymmetric import rsa
 from core_ca import generate_key_pair
 
 # Issue Certificate
-# TODO check token
-# TODO figure out what to do after getting token
-# TODO what is token and what do I do with token? --> TOKEN is jwt token and contains uid 
-# TODO how does it check token?x
 @app.route("/issue_cert", methods=["POST"])
-@auth.token_required
-def issue_cert():
+@app.token_required
+def issue_cert(u: models.Users):
 
-    #TODO do I need this part? 
-    
-    # Get credentials
-    try:
-        data = request.json
-        token = data["token"]
-    except:
-        return make_response("unauthorized", codes.unauthorized)
-
-    #TODO call to public private key generation 
-    cert = generate_key_pair()
-
-    return  make_response({'cert' : cert}, codes.created)
+    cert_pkcs12 = generate_key_pair(u.uid).hex()  #TODO hexify?
+    return  make_response({'cert' : cert_pkcs12}, codes.created)
 
 @app.route("/revoke_cert", methods=["POST"])
 @auth.token_required
