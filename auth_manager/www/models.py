@@ -42,7 +42,7 @@ class Users(db.Model):
         return True
 
     def json(self):
-        return dumps({"firstname": self.firstname, "lastname": self.lastname, "email": self.email})
+        return dumps({"uid": self.uid, "firstname": self.firstname, "lastname": self.lastname, "email": self.email})
 
 
 def get_user(uid: str) -> Users:
