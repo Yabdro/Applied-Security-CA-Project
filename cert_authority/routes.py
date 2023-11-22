@@ -14,7 +14,6 @@ from core_ca import generate_key_pair
 # TODO figure out what to do after getting token
 # TODO what is token and what do I do with token? --> TOKEN is jwt token and contains uid 
 # TODO how does it check token?x
-
 @app.route("/issue_cert", methods=["POST"])
 @auth.token_required
 def issue_cert():
