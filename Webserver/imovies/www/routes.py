@@ -28,7 +28,7 @@ def cred_login():
 
 # Authentication using client certificate
 @app.route("/cert-authenticated/successful_login", methods=["GET"])
-def cert():
+def cert_login():
     try:
         client_cert = request.headers.get("SSL_CLIENT_CERT")
         data = {"client_cert":client_cert}
