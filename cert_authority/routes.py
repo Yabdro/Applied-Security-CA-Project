@@ -3,28 +3,34 @@ from flask import Flask, request, make_response
 import json
 from requests.status_codes import codes
 
-from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives import serialization
-from cryptography.hazmat.primitives.asymmetric import rsa
 
 from core_ca import generate_key_pair
 
 # Issue Certificate
 @app.route("/issue_cert", methods=["POST"])
-@app.token_required
+@auth.token_required 
 def issue_cert(u: models.Users):
 
-    cert_pkcs12 = generate_key_pair(u.uid).hex()  #TODO hexify?
+    uid = u.uid 
+    gen_csr_path = '/core_ca/gen_csr.sh'
+    csr = subprocess.run(['bash', gen_csr_path, uid], capture_output=True, text=True)
+
+    sign_cert_path = '/core_ca/sign_cert.sh'
+    cert_pkcs12 = subprocess.run(['bash', sign_cert_path, uid], capture_output=True, text=True)
+
     return  make_response({'cert' : cert_pkcs12}, codes.created)
 
 @app.route("/revoke_cert", methods=["POST"])
 @auth.token_required
-def revoke_cert():
-    #TODO use OpenSSL to manage CRL
+def revoke_cert(u: models.Users):
+
+    uid = u.uid 
+    revoke_cert_path = '/core_ca/revoke_cert.sh'
+    exit_stat = subprocess.run(['bash', uid], capture_output=True, text=True)
     return None
 
 
-
-
+#TODO verify cert
+#TODO request CRL 
 
 
