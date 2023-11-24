@@ -1,7 +1,8 @@
-from www import app, auth, models
+from www import app, auth, models, ca
 from flask import Flask, request, make_response
 import json
 from requests.status_codes import codes
+import subprocess
 
 # Login user
 @app.route("/login", methods=["POST"])
@@ -47,3 +48,39 @@ def change_info(u: models.Users):
 
     # Note: an empty update generates a success reply
     return make_response("success", codes.created)
+
+
+# Apply changes to a user data
+@app.route("/issue_cert", methods=["POST"])
+@auth.token_required
+def issue_cert(u: models.Users):
+    
+    uid = u.uid
+    try:
+        cert = ca.issue_new_certificate(uid)
+        print(ca.verify_certificate(cert))
+    except Exception as e:
+        print(e)
+        return make_response("could not create certificate", codes.server_error)
+    
+    return make_response(cert, codes.created)
+
+
+"""
+@app.route("/cert_login", methods=["POST"])
+def issue_cert():
+    
+    cert = request.json["cert"]
+    uid = ca.verify_certificate(cert)
+    if not uid:
+        return make_response("invalid certificate", codes.server_error)
+    
+    return make_response("success", codes.created)
+"""
+
+
+# Revoke certificates associated with user 
+
+# Ca login
+
+# Check certificate login
