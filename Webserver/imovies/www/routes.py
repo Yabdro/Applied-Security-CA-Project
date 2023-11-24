@@ -5,6 +5,8 @@ from requests.status_codes import codes
 import requests
 import urllib3
 import traceback
+from cryptography.hazmat.primitives.serialization import pkcs12
+
 
 unauthorized = requests.status_codes.codes.unauthorized
 ok = requests.status_codes.codes.ok
@@ -23,35 +25,35 @@ def welcome():
 # Login form
 @app.route("/cred_login", methods=["GET"])
 def cred_login():
-    return render_template('cred_login.html')
-
+        return render_template('cred_login.html')
 
 # Authentication using client certificate
 @app.route("/cert-authenticated/successful_login", methods=["GET"])
 def cert_login():
     try:
-        client_cert = request.headers.get("SSL_CLIENT_CERT")
-        data = {"client_cert":client_cert}
-            # Send credentials to auth manager
-        response = requests.post(url=f"{base_url}/cert_login", 
-                                json=data, verify=verify, cert=cert)
-        if not response.status_code == created:
-            return make_response("unauthorized: invalid certificate", codes.unauthorized)
+        # client_cert = request.headers.get("SSL_CLIENT_CERT")
+        # data = {"client_cert":client_cert}
+        # Send credentials to auth manager
+        # response = requests.post(url=f"{base_url}/cert_login", 
+        #                         json=data, verify=verify, cert=cert)
+        # if not response.status_code == created:
+        #     return make_response("unauthorized: invalid certificate", codes.unauthorized)
         
         # Certificate checks out, retrieve user data
-        token = response.json()['token']
-        headers = {'x-access-token':token}
-        response = requests.get(url=f"{base_url}/users", 
-                                verify=verify, cert=cert, headers=headers)
-        if not response.status_code == ok:
-            return make_response("unauthorized: couldn't retrieve user data", codes.unauthorized)
+        # token = response.json()['token']
+        # headers = {'x-access-token':token}
+        # response = requests.get(url=f"{base_url}/users", 
+        #                         verify=verify, cert=cert, headers=headers)
+        # if not response.status_code == ok:
+        #     return make_response("unauthorized: couldn't retrieve user data", codes.unauthorized)
         
+        return render_template("cert-authenticated/success.html")
         # Send user info back to user for corrections
-        user_json = response.json()
-        context = {"user": user_json}
-        resp = make_response(render_template('cred-authenticated/successful_login.html', **context))
-        resp.set_cookie(key='x-access-token', value=token)
-        return render_template('cert-authenticated/successful_login.html')
+        # user_json = response.json()
+        # context = {"user": user_json}
+        # resp = make_response(render_template('cred-authenticated/successful_login.html', **context))
+        # resp.set_cookie(key='x-access-token', value=token)
+        # return render_template('cert-authenticated/successful_login.html')
     
     except:
         return make_response(f"unauthorized: {traceback.format_exc()}", codes.unauthorized)
@@ -68,6 +70,7 @@ def login():
         # Send credentials to auth manager
         response = requests.post(url=f"{base_url}/login", 
                                 json=data, verify=verify, cert=cert)
+
         if not response.status_code == created:
             return make_response("unauthorized: wrong credentials", codes.unauthorized)
 
@@ -167,9 +170,12 @@ def issue_cert():
         filepath = f"/var/www/imovies/downloads/{uid}/cert.pfx"
         # TODO: Perform request to Dakota to issue a certificate 
         # Then store the certificate to filepath
-        resp = requests.get(url=f"{base_url}/issue_cert", 
+        resp = requests.post(url=f"{base_url}/issue_cert", 
                                 verify=verify, cert=cert, headers=headers)
         
+        resp
+        # with open(filepath, "wb") as f:
+        #     f.write(resp.content)
         return render_template('issue_cert.html')
     
     except Exception as e:
@@ -190,7 +196,7 @@ def revoke_cert():
         return make_response(f"unauthorized: {traceback.format_exc()}", codes.unauthorized)
 
 
-@app.route('/download_cert')
+@app.route('/download_cert/')
 def download_cert():
     try:
         token = request.cookies["x-access-token"]
@@ -202,6 +208,11 @@ def download_cert():
 
         uid = resp.json()["uid"]
         filepath = f"/var/www/imovies/downloads/{uid}/cert.pfx"
+        # c
+        #     cert_bytes = f.readline()
+
+        # _,client_cert, _ = pkcs12.load_key_and_certificates(cert_bytes, None, None)
+
         resp = send_file(filepath, as_attachment=True)
         resp.headers['Content-Type'] = 'application/x-pkcs12'
         os.remove(filepath)
