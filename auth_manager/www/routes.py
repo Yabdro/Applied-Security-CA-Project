@@ -1,8 +1,11 @@
 from www import app, auth, models, ca
-from flask import Flask, request, make_response
+from flask import Flask, request, make_response, send_file
 import json
 from requests.status_codes import codes
 import subprocess
+
+CA_PATH = "/var/www/auth_manager/ssl/CA"
+KEY_PATH = f"{CA_PATH}/private"
 
 # Login user
 @app.route("/login", methods=["POST"])
@@ -57,13 +60,14 @@ def issue_cert(u: models.Users):
     
     uid = u.uid
     try:
-        cert = ca.issue_new_certificate(uid)
-        print(ca.verify_certificate(cert))
+        ca.issue_new_certificate(uid)
+        cert_path =  f"{KEY_PATH}/{uid}.key"
     except Exception as e:
         print(e)
         return make_response("could not create certificate", codes.server_error)
     
-    return make_response(cert, codes.created)
+    return send_file(cert_path, mimetype='application/x-pkcs12')
+    # return make_response(cert, codes.created)
 
 
 """
