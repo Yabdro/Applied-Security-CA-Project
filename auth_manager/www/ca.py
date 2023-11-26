@@ -8,11 +8,14 @@ from cryptography.hazmat.backends import default_backend
 import OpenSSL
 import subprocess
 import os
+from www.models import Users
 
-country = "CH"
-province = "Zurich"
-locality = "Zurich"
-org_name = "ETHZ"
+PRE_ISSUED_CERTS = 2
+COUNTRY = "CH"
+PROVINCE = "Zurich"
+LOCALITY = "Zurich"
+ORG_UNIT = "Applied Sec Lab"
+ORG_NAME = "ETHZ"
 
 CONFIG = "/var/www/auth_manager/ssl/openssl.cnf"
 WWW = "/var/www/auth_manager/www"
@@ -55,35 +58,45 @@ def load_cert(path):
         print("Error while loading client certrificate")
     
 
-def get_next_serial_id():
+def get_next_serial_id() -> str:
     with open(f"{CA_PATH}/serial") as f:
         return f.read().strip("\n")
 
-def issue_new_certificate(uid) -> bytes:
+def issue_new_certificate(user: Users) -> bytes:
 
+    uid = user.uid
     serial_id = get_next_serial_id()
 
     priv = gen_key()
 
+    
     csr = x509.CertificateSigningRequestBuilder().subject_name(
         x509.Name([
-            x509.NameAttribute(NameOID.COMMON_NAME, uid),
-            x509.NameAttribute(NameOID.COUNTRY_NAME, country),
-            x509.NameAttribute(NameOID.STATE_OR_PROVINCE_NAME, province),
-            x509.NameAttribute(NameOID.LOCALITY_NAME, locality),
-            x509.NameAttribute(NameOID.ORGANIZATION_NAME, org_name),
+            x509.NameAttribute(NameOID.COMMON_NAME, user.firstname),
+            x509.NameAttribute(NameOID.SURNAME, user.lastname),
+            x509.NameAttribute(NameOID.USER_ID, user.uid),
+            x509.NameAttribute(NameOID.EMAIL_ADDRESS, user.email),
+            x509.NameAttribute(NameOID.COUNTRY_NAME, COUNTRY),
+            x509.NameAttribute(NameOID.STATE_OR_PROVINCE_NAME, PROVINCE),
+            x509.NameAttribute(NameOID.LOCALITY_NAME, LOCALITY),
+            x509.NameAttribute(NameOID.ORGANIZATIONAL_UNIT_NAME, ORG_UNIT),
+            x509.NameAttribute(NameOID.ORGANIZATION_NAME, ORG_NAME)
         ])).add_extension(
         x509.SubjectAlternativeName([
         x509.DNSName(uid)]), critical=False).sign(priv, hashes.SHA256(), default_backend())
 
     store_csr(csr, uid)
 
-    subprocess.call(f"openssl ca -in {WWW}/{uid}.csr -batch -config {CONFIG}".split(" "))
+    return_code = subprocess.call(f"openssl ca -in {WWW}/{uid}.csr -batch -config {CONFIG}".split(" "))
+
+    if not return_code:
+        delete_csr(uid)
+        return None
 
     new_cert = load_cert(f"{CA_PATH}/newcerts/{serial_id}.pem")
-    
-    delete_csr(uid)
 
+    delete_csr(uid)
+    
     pkcs12 = store_pkcs12(priv, new_cert, uid, f"{KEY_PATH}/{uid}.key")
 
     return pkcs12
@@ -91,10 +104,6 @@ def issue_new_certificate(uid) -> bytes:
 
 
 
-
-
-
-"""
 def verify_certificate(client_cert: bytes):
 
     try:
@@ -116,4 +125,15 @@ def verify_certificate(client_cert: bytes):
     except Exception as e:
         print(e)
         return None
-"""
+    
+def get_state():
+    #TODO: get #revoked certs
+    revoked = 0
+    serial = get_next_serial_id()
+    issued = int(serial)-(PRE_ISSUED_CERTS+1)
+
+    return {
+        "serial": serial,
+        "issued": issued,
+        "revoked": revoked
+    }

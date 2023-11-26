@@ -15,6 +15,11 @@ def auth_user(uid:str, password: str) -> jwt:
     if not user.check_password(password):
         return None
 
+    return create_token(user)
+
+
+def create_token(user: models.Users):
+
     payload = {
         "uid": user.uid,
         "exp": datetime.utcnow() + timedelta(minutes=15)
@@ -27,7 +32,6 @@ def auth_user(uid:str, password: str) -> jwt:
     )
 
     return jwt_token
-
 
 def token_required(f):
     @wraps(f)
@@ -51,6 +55,19 @@ def token_required(f):
         # Check logged user was actually in DB
         if not logged_u:
             return make_response('unauthorized', 401)
+        
+        # Return the current logged user to the routes
+        return  f(logged_u, *args, **kwargs)
+  
+    return decorated
+
+def admin_required(f):
+    @wraps(f)
+    def decorated(logged_u: models.Users, *args, **kwargs):
+        
+        # Check that the logged user is admin
+        if not logged_u or not logged_u.admin:
+            return make_response('not admin', 401)
         
         # Return the current logged user to the routes
         return  f(logged_u, *args, **kwargs)

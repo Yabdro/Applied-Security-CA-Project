@@ -60,7 +60,8 @@ def test_suite6():
     print("\n\n-------------- get new certificate and verify --------------\n\n")
     
     r = requests.post(url=f"{base_url}/issue_cert", headers={"x-access-token": token}, verify=verify, cert=cert)
-    assert r.status_code == created
+    print(r.content)
+    assert r.status_code == ok
     client_cert = r.content
     print(client_cert)
 

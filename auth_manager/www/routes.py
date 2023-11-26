@@ -29,6 +29,27 @@ def login():
     return  make_response({'token' : token}, codes.created)
 
 
+# Login for user already authenticated with certificate
+@app.route("/cert_login", methods=["POST"])
+def cert_login():
+    try:
+        data = request.json
+        uid = data["uid"]
+    except:
+        return make_response("unauthorized", codes.unauthorized)
+    
+    user = models.get_user(uid)
+
+    if not user:
+        return make_response("unauthorized", codes.unauthorized)
+
+
+    # Authenticate user and generate authorization token
+    token = auth.create_token(user)
+    
+    return  make_response({'token' : token}, codes.created)
+
+
 # Get user information in database
 @app.route("/users", methods=["GET"])
 @auth.token_required
@@ -58,29 +79,24 @@ def change_info(u: models.Users):
 @auth.token_required
 def issue_cert(u: models.Users):
     
-    uid = u.uid
     try:
-        ca.issue_new_certificate(uid)
-        cert_path =  f"{KEY_PATH}/{uid}.key"
+        cert = ca.issue_new_certificate(u) 
+        cert_path =  f"{KEY_PATH}/{u.uid}.key"
     except Exception as e:
         print(e)
         return make_response("could not create certificate", codes.server_error)
-    
+    finally:
+        if not cert:
+            return make_response("could not create certificate", codes.server_error)
     return send_file(cert_path, mimetype='application/x-pkcs12')
-    # return make_response(cert, codes.created)
 
 
-"""
-@app.route("/cert_login", methods=["POST"])
-def issue_cert():
-    
-    cert = request.json["cert"]
-    uid = ca.verify_certificate(cert)
-    if not uid:
-        return make_response("invalid certificate", codes.server_error)
-    
-    return make_response("success", codes.created)
-"""
+# admin interface
+@app.route("/ca/admin_info", methods=["GET"])
+@auth.token_required
+@auth.admin_required
+def get_ca_info(user: models.Users):
+    return make_response(ca.get_state(), 200)
 
 
 # Revoke certificates associated with user 
