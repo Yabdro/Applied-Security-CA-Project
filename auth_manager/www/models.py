@@ -27,6 +27,7 @@ class Users(db.Model):
     lastname = db.Column(db.String(64))
     firstname = db.Column(db.String(64))
     email = db.Column(db.String(64))
+    admin = db.Column(db.Boolean)
 
     print_fields = ["uid", "pwd"]
 
@@ -42,7 +43,7 @@ class Users(db.Model):
         return True
 
     def json(self):
-        return dumps({"uid": self.uid, "firstname": self.firstname, "lastname": self.lastname, "email": self.email})
+        return dumps({"firstname": self.firstname, "lastname": self.lastname, "email": self.email})
 
 
 def get_user(uid: str) -> Users:

@@ -9,6 +9,7 @@ from multiprocessing import Process, Queue
 import requests
 from hashlib import sha256
 import urllib3
+from www import ca
 
 server_err = requests.status_codes.codes.server_error
 unauthorized = requests.status_codes.codes.unauthorized
@@ -54,6 +55,15 @@ def test_suite6():
     print("\n\n-------------- get user info with valid access token --------------\n\n")
     r = requests.get(url=f"{base_url}/users", headers={"x-access-token": token}, verify=verify, cert=cert)
     assert r.status_code == ok
+
+def test_suite6():
+    print("\n\n-------------- get new certificate and verify --------------\n\n")
+    
+    r = requests.post(url=f"{base_url}/issue_cert", headers={"x-access-token": token}, verify=verify, cert=cert)
+    print(r.content)
+    assert r.status_code == ok
+    client_cert = r.content
+    print(client_cert)
 
 def test_suite7():
     print("\n\n-------------- update user info without access token --------------\n\n")
