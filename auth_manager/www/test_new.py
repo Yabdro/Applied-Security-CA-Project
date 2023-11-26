@@ -34,8 +34,8 @@ def test_suite3():
     r = requests.post(url=f"{base_url}/cert_login", verify=verify, cert=cert, json={"uid":"ps"})
     assert r.status_code == created
     assert r.json().__contains__("token")
-    global ps_token 
-    ps_token = r.json()["token"]
+    global admin_token 
+    admin_token = r.json()["token"]
 
 def test_suite4():
     print("\n\n-------------- access ca info from non admin user  --------------\n\n")
@@ -45,6 +45,6 @@ def test_suite4():
 
 def test_suite5():
     print("\n\n-------------- access ca info from admin user  --------------\n\n")
-    r = requests.get(url=f"{base_url}/ca/admin_info", verify=verify, cert=cert, headers={"x-access-token": ps_token})
+    r = requests.get(url=f"{base_url}/ca/admin_info", verify=verify, cert=cert, headers={"x-access-token": admin_token})
     assert r.status_code == ok
     print(r.content)
