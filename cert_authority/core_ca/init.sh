@@ -16,3 +16,7 @@ sudo openssl req -new -x509 -extensions v3_ca -keyout cakey.pem -out cacert.pem 
 sudo mv cakey.pem /etc/ssl/CA/private/
 sudo mv cacert.pem /etc/ssl/CA/
 sudo openssl ca -in key.csr -config /etc/ssl/openssl.cnf
+
+#Create CRL
+sudo mkdir /etc/ssl/CA/crl
+sudo bash -c "echo ’01’ > /etc/ssl/CA/crlnumber"
