@@ -80,8 +80,10 @@ def change_info(u: models.Users):
 def issue_cert(u: models.Users):
     
     try:
+        print("aaa")
         cert = ca.issue_new_certificate(u) 
         cert_path =  f"{KEY_PATH}/{u.uid}.key"
+        print(cert_path)
     except Exception as e:
         print(e)
         return make_response("could not create certificate", codes.server_error)

@@ -87,18 +87,15 @@ def issue_new_certificate(user: Users) -> bytes:
 
     store_csr(csr, uid)
 
-    return_code = subprocess.call(f"openssl ca -in {WWW}/{uid}.csr -batch -config {CONFIG}".split(" "))
-
-    if not return_code:
-        delete_csr(uid)
-        return None
+    subprocess.call(f"openssl ca -in {WWW}/{uid}.csr -batch -config {CONFIG}".split(" "))
 
     new_cert = load_cert(f"{CA_PATH}/newcerts/{serial_id}.pem")
-
+    print(new_cert)
+    
     delete_csr(uid)
     
     pkcs12 = store_pkcs12(priv, new_cert, uid, f"{KEY_PATH}/{uid}.key")
-
+    print(len(pkcs12))
     return pkcs12
 
 
