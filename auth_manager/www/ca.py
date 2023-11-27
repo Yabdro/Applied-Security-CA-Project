@@ -164,18 +164,18 @@ def revoke_cert(client_cert: bytes):
         revoked.set_rev_date(formatted_date) 
 
         #Set serial number of revocation  
-        revoked.set_serial(hex(cert.get_serial_number())[2:]) #TODO  double check 
+        revoked.set_serial(cert.get_serial_number()) 
 
         #Add revocation entry to CRL object 
         crl.add_revoked(revoked)
 
-        crl.set_version(1)
+        crl.set_version(1) #TODO what version? 
         crl.set_lastUpdate(formatted_date)  
         crl.set_nextUpdate(formatted_date) 
         crl.set_issuer(ca_cert.get_subject())
 
         #Sign the updated CRL object 
-        crl.sign(ca_key, "sha256")
+        crl.sign(ca_key, "sha256") #TODO do we sign using SHA-256? 
 
         #Write CRL object to file 
         with open(crl_file_PATH, "wb") as crl_file:  
