@@ -127,10 +127,12 @@ def verify_certificate(client_cert: bytes):
 
 def revoke_cert(client_cert: bytes):
     try: 
+        
         #First check that certificate is valid before revoking it 
-        verify_certificate(client_cert)
+        if not(verify_certificate(client_cert)): 
+            return None #TODO bool or CRL object return type? 
 
-        ca_root_PATH =  "/var/www/auth_manager/ssl/CA"
+        ca_root_PATH =  CA_PATH #OKAY...
         ca_cert_PATH = ca_root_PATH + "/cacert.pem"
         ca_key_PATH  = ca_root_PATH + "/cakey.pem"
 
@@ -139,14 +141,13 @@ def revoke_cert(client_cert: bytes):
 
         cert = crypto.load_certificate(FILETYPE_PEM, client_cert)
 
-        #Get current date andd format the date as "YYYYMMDDHHMMSSZ"
+        #Get current date and format the date as "YYYYMMDDHHMMSSZ"
         current_date = datetime.utcnow()
         formatted_date = current_date.strftime("%Y%m%d%H%M%SZ").encode()
 
         crl = None 
 
         crl_file_PATH = ca_root_PATH + "/crl.pem" 
-
 
         #TODO security risk of open? 
 
@@ -179,6 +180,8 @@ def revoke_cert(client_cert: bytes):
         #Write CRL object to file 
         with open(crl_file_PATH, "wb") as crl_file:  
             crl_file.write(crypto.dump_crl(FILETYPE_PEM, crl))
+        
+        #TODO return CRL object or return status of operation succeess? 
 
     except Exception as e:
         print(e)
