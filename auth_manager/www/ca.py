@@ -125,7 +125,8 @@ def verify_certificate(client_cert: bytes):
         print(e)
         return None
 
-def revoke_cert(client_cert: bytes):
+
+def revoke(client_cert: bytes):
     try: 
         
         #First check that certificate is valid before revoking it 
@@ -187,7 +188,25 @@ def revoke_cert(client_cert: bytes):
         print(e)
         return None
 
-   
+def revoke_user_certs(user: Users):
+
+    #Get the certificate paths of this user 
+    certs_directory = "{CA_PATH}/newcerts/{uid}"
+    cert_filenames = os.listdir(certs_directory)
+    #Get paths 
+    cert_paths = [os.path.join(directory, cert_fn) for cert_fn in cert_filenames ]
+
+    #Keep only the files in this directory listing 
+    cert_paths = [ cert_path for cert_path in cert_paths if os.path.isfile(cert_path)]
+
+    #Load bytes of each certificate
+    certs_bytes = [open(cert_path, "rb").read() for cert_path in cert_paths]
+
+    #Revoke each cert
+    for client_cert in certs_bytes: 
+        revoke(client_cert)
+        
+
 def get_state():
     #TODO: get #revoked certs
     revoked = 0
@@ -202,10 +221,3 @@ def get_state():
 
 
 
-#Keys in /etc/ssl/CA/privates: 
-#CA key: cakey.pem 
-#auth_manager: auth_manager.key 
-#webserver: webserver.key
-#New certificates in /etc/ssl/CA/newcerts
-#auth_manager: 01.pem 
-#webserver: 02.pem
