@@ -131,7 +131,7 @@ def revoke(client_cert: bytes):
         
         #First check that certificate is valid before revoking it 
         if not(verify_certificate(client_cert)): 
-            return None #TODO bool or CRL object return type? 
+            return None 
 
         ca_root_PATH =  CA_PATH #OKAY...
         ca_cert_PATH = ca_root_PATH + "/cacert.pem"
@@ -182,13 +182,15 @@ def revoke(client_cert: bytes):
         with open(crl_file_PATH, "wb") as crl_file:  
             crl_file.write(crypto.dump_crl(FILETYPE_PEM, crl))
         
-        #TODO return CRL object or return status of operation succeess? 
+        return crl  
 
     except Exception as e:
         print(e)
         return None
 
 def revoke_user_certs(user: Users):
+
+    success = True 
 
     #Get the certificate paths of this user 
     certs_directory = "{CA_PATH}/newcerts/{uid}"
@@ -204,8 +206,11 @@ def revoke_user_certs(user: Users):
 
     #Revoke each cert
     for client_cert in certs_bytes: 
-        revoke(client_cert)
-        
+        crl = revoke(client_cert)
+        success = success and not((crl == None)) 
+    
+    return success
+
 
 def get_state():
     #TODO: get #revoked certs
