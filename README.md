@@ -4,7 +4,7 @@
 - Download the .ova files of all 4 machines
 - For each VM:
     - double-click on the .ova to import it in VirtualBox
-    - select 'Include all MAC Addresses'
+    - select 'Include all network adapter MAC Addresses'
     - import
 - The IP addresses for the internal network (and for the fake internet network) are static, known_hosts files are all complete with the IP addresses of the other (relevant) machines. (i.e. doing `ping Dakota` from Wynona will ping the Database machine)
 
@@ -44,7 +44,7 @@ Backup machine (Benedict) user accounts:
 
 
 # Config Info
-The configuration files for both Wynona's and Dakota's webserver are located in `/etc/apache2/` on the respective machine. The Web directories are in `/var/www/imovies` and `/var/www/auth_manager` respectively. 
+The configuration files for both Wynona's and Dakota's webserver are located in `/etc/apache2/sites-availabe` on the respective machine. The Web directories are in `/var/www/imovies` and `/var/www/auth_manager` respectively. A copy of these two directories and of both config files can be found in this repository.
 
 
 # General
