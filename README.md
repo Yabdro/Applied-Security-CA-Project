@@ -1,1 +1,53 @@
 # Applied-Security-CA-Project
+
+# How to import our project
+- Download the .ova files of all 4 machines
+- For each VM:
+    - double-click on the .ova to import it in VirtualBox
+    - select 'Include all MAC Addresses'
+    - import
+- The IP addresses for the internal network (and for the fake internet network) are static, known_hosts files are all complete with the IP addresses of the other (relevant) machines. (i.e. doing `ping Dakota` from Wynona will ping the Database machine)
+
+
+# Network info
+Network Addresses:
+
+- intnet: Network 192.168.1.0/24
+- ASL_internet: Network 192.168.2.0/24
+- Dakota: 192.168.1.112
+- Cate: TODO
+- Benedict: 192.168.1.113
+- Wynona_internal: 192.168.1.111
+- Wynona_external: 192.168.2.111
+- Clark: 192.168.2.200
+
+# Credentials
+For the following, this format will be used: `username:password`.
+
+Client machine (Clark) user accounts:
+- root:clark
+- ps:patrickschaller
+- clark:lukasbruegger
+- ms:michaelschlaepper
+- a3:andresalan
+
+Webserver machine (Wynona) user accounts:
+- root:wynona
+- wynona:wynona
+
+Database machine (Dakota) user accounts:
+- root:dakota
+- dakota:dakota
+
+Backup machine (Benedict) user accounts:
+- root:root
+
+
+# Config Info
+The configuration files for both Wynona's and Dakota's webserver are located in `/etc/apache2/` on the respective machine. The Web directories are in `/var/www/imovies` and `/var/www/auth_manager` respectively. 
+
+
+# General
+For reaching the Webserver from the Client machine, we reccomend using Chrome as we have had problems importing our generated client-certificates into Firefox. If you really want to use Firefox, we have found that importing a certificate into Chrome, then exporting it and importing that into Firefox will actually work.
+
+Once inside the internal network, SSH access should work without password authentication from every machine, except for the Webserver (Wynona). I.e. to access machine Dakota from inside Benedict, you would execute `ssh dakota@Dakota`. SSH access from Wynona to other internal machines has been disabled for security purposes.
