@@ -3,6 +3,8 @@ from flask import Flask, request, make_response, send_file
 import json
 from requests.status_codes import codes
 import subprocess
+import os
+
 
 CA_PATH = "/var/www/auth_manager/ssl/CA"
 KEY_PATH = f"{CA_PATH}/private"
@@ -78,7 +80,6 @@ def change_info(u: models.Users):
 @app.route("/issue_cert", methods=["POST"])
 @auth.token_required
 def issue_cert(u: models.Users):
-    
     try:
         print("aaa")
         cert = ca.issue_new_certificate(u) 
@@ -101,7 +102,19 @@ def get_ca_info(user: models.Users):
     return make_response(ca.get_state(), 200)
 
 
-# Revoke certificates associated with user 
+# Revoke ALL certificates associated with user 
+@app.route("/revoke", methods=["POST"])
+@auth.token_required
+def revoke_cert(u: models.Users):
+    
+    success = revoke_user_certs(u)
+    
+    # Note: an empty certificate list for this user generates a success reply
+    if(success): 
+        return make_response("success", codes.created)
+    else: 
+        return make_response("Failure", codes.internal_server_error)
+
 
 # Ca login
 
