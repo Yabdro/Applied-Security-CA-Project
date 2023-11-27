@@ -192,6 +192,8 @@ def revoke_user_certs(user: Users):
 
     success = True 
 
+    uid = user.uid
+
     #Get the certificate paths of this user 
     certs_directory = "{CA_PATH}/newcerts/{uid}"
     cert_filenames = os.listdir(certs_directory)
