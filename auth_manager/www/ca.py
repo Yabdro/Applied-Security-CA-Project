@@ -190,7 +190,7 @@ def revoke(client_cert: bytes):
 
 def revoke_user_certs(user: Users):
 
-    success = True 
+    
 
     uid = user.uid
 
@@ -206,10 +206,13 @@ def revoke_user_certs(user: Users):
     #Load bytes of each certificate
     certs_bytes = [open(cert_path, "rb").read() for cert_path in cert_paths]
 
+    #The revocation should fail if any of the individual revocations fail or if the list of certificates is found to be empty
+    success = (True and not(len(cert_paths) == 0))
+
     #Revoke each cert
     for client_cert in certs_bytes: 
         crl = revoke(client_cert)
-        success = success and not((crl == None)) 
+        success = success or not((crl == None)) 
     
     return success
 
