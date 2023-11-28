@@ -9,6 +9,7 @@ import OpenSSL
 from OpenSSL import crypto
 import subprocess
 import os
+import json
 from www.models import Users
 from datetime import datetime
 
@@ -23,6 +24,7 @@ ORG_NAME = "ETHZ"
 CONFIG = "/var/www/auth_manager/ssl/openssl.cnf"
 WWW = "/var/www/auth_manager/www"
 CA_PATH = "/var/www/auth_manager/ssl/CA"
+CA_PUB_KEY = f"{CA_PATH}/cacert.pem"
 KEY_PATH = f"{CA_PATH}/private"
 NEW_CERTS = f"{CA_PATH}/newcerts"
 CRL_PATH = f"{CA_PATH}/crl/crl.pem"
@@ -146,6 +148,24 @@ def parse_certificate(client_cert: bytes):
         return None
 
 
+def check_against_crl(client_cert: bytes):
+    client_cert = client_cert.removeprefix(b"-----BEGIN CERTIFICATE-----").removesuffix(b"-----END CERTIFICATE----- ").replace(b" ", b"\r\n")
+    client_cert = b"-----BEGIN CERTIFICATE-----"+client_cert+b"-----END CERTIFICATE-----\r\n"
+    client_cert = x509.load_pem_x509_certificate(client_cert)
+
+    cert_path = "/var/www/auth_manager/tocheck.pem"
+    with open(cert_path, 'wb') as f:
+        f.write(client_cert.public_bytes(encoding=serialization.Encoding.PEM))
+
+    ret = subprocess.call(f"/var/www/auth_manager/www/./check_against_crl.sh".split(" "))
+    # ret = subprocess.call(f"openssl verify -CAfile revoked.pem -crl_check {cert_path}".split(" "))
+    # os.remove(cert_path)
+    # os.remove("/var/www/auth_manager/revoked.pem")
+    if ret == 0:
+        return True
+    return False
+
+
 def revoke_user_certs(user: Users):
     uid = user.uid
 
@@ -180,9 +200,9 @@ def get_state():
     revoked = get_next_revoked_id()
     revoked = int(revoked, base=16) - 1
 
-    return {
+    return json.dumps({
         "serial": serial,
         "issued": issued,
         "revoked": revoked
-    }
+    })
 

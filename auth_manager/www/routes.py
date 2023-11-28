@@ -41,14 +41,15 @@ def cert_login():
         return make_response("invalid request", codes.server_error)
     
     user = None
-
+    valid = False
     try: 
+        valid = ca.check_against_crl(crt.encode())
         uid = ca.parse_certificate(crt.encode()) 
         user = models.get_user(uid)
     except Exception as e:
         print(e)
 
-    if not user:
+    if not user or not valid:
         return make_response("unauthorized", codes.unauthorized)
 
 
@@ -82,21 +83,19 @@ def change_info(u: models.Users):
     return make_response("success", codes.created)
 
 
-# Apply changes to a user data
+# Issue a new certificate for the user
 @app.route("/issue_cert", methods=["POST"])
 @auth.token_required
 def issue_cert(u: models.Users):
-    cert = None
     try:
         cert = ca.issue_new_certificate(u) 
         cert_path =  f"{KEY_PATH}/{u.uid}.key"
+        if not cert:
+            return make_response("could not create certificate", codes.unauthorized)
+        return send_file(cert_path, mimetype='application/x-pkcs12')
     except Exception as e:
         print(e)
-        return make_response("could not create certificate", codes.server_error)
-    finally:
-        if not cert:
-            return make_response("could not create certificate", codes.server_error)
-    return send_file(cert_path, mimetype='application/x-pkcs12')
+        return make_response("could not create certificate", codes.unauthorized)
 
 
 # admin interface
@@ -110,11 +109,15 @@ def get_ca_info(user: models.Users):
 @app.route("/revoke", methods=["POST"])
 @auth.token_required
 def revoke_cert(u: models.Users):
-    
-    success = ca.revoke_user_certs(u)
+    try:
+        success = ca.revoke_user_certs(u)
 
-    #return the CRL file 
-    if(success): 
-        return send_file(ca.CRL_PATH, as_attachment=True)
-    else: 
-        return make_response("Could not revoke the certificates", codes.internal_server_error)
+        #return the CRL file 
+        if(success): 
+            resp = send_file(ca.CRL_PATH, as_attachment=True)
+            resp.status_code = codes.created
+            return resp
+        else: 
+            return make_response("No certificates to revoke for current user", codes.ok)
+    except:
+        make_response("Something went wrong while revoking certificate", codes.unauthorized)
