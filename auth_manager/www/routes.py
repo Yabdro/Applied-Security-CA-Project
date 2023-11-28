@@ -3,8 +3,7 @@ from flask import Flask, request, make_response, send_file
 import json
 from requests.status_codes import codes
 import subprocess
-import os
-
+import base64
 
 CA_PATH = "/var/www/auth_manager/ssl/CA"
 KEY_PATH = f"{CA_PATH}/private"
@@ -34,13 +33,20 @@ def login():
 # Login for user already authenticated with certificate
 @app.route("/cert_login", methods=["POST"])
 def cert_login():
+
     try:
         data = request.json
-        uid = data["uid"]
+        crt = data["cert"]
     except:
-        return make_response("unauthorized", codes.unauthorized)
+        return make_response("invalid request", codes.server_error)
     
-    user = models.get_user(uid)
+    user = None
+
+    try: 
+        uid = ca.parse_certificate(crt.encode()) 
+        user = models.get_user(uid)
+    except Exception as e:
+        print(e)
 
     if not user:
         return make_response("unauthorized", codes.unauthorized)
@@ -80,11 +86,10 @@ def change_info(u: models.Users):
 @app.route("/issue_cert", methods=["POST"])
 @auth.token_required
 def issue_cert(u: models.Users):
+    cert = None
     try:
-        print("aaa")
         cert = ca.issue_new_certificate(u) 
         cert_path =  f"{KEY_PATH}/{u.uid}.key"
-        print(cert_path)
     except Exception as e:
         print(e)
         return make_response("could not create certificate", codes.server_error)
@@ -101,7 +106,6 @@ def issue_cert(u: models.Users):
 def get_ca_info(user: models.Users):
     return make_response(ca.get_state(), 200)
 
-
 # Revoke ALL certificates associated with user 
 @app.route("/revoke", methods=["POST"])
 @auth.token_required
@@ -109,14 +113,8 @@ def revoke_cert(u: models.Users):
     
     success = ca.revoke_user_certs(u)
 
+    #return the CRL file 
     if(success): 
-        #return the (re-)created CRL file 
         return send_file(ca.CRL_PATH, as_attachment=True)
-     # Note: an empty certificate list for this user generates failure (no CRL (re-)creation)
     else: 
-        return make_response("Failure", codes.internal_server_error)
-
-
-# Ca login
-
-# Check certificate login
+        return make_response("Could not revoke the certificates", codes.internal_server_error)

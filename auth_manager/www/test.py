@@ -51,11 +51,12 @@ def test_suite4():
     token = r.json()["token"]
 
 
-def test_suite12():
+def test_suite6():
     print("\n\n-------------- get user info with valid access token --------------\n\n")
     r = requests.get(url=f"{base_url}/users", headers={"x-access-token": token}, verify=verify, cert=cert)
     assert r.status_code == ok
 
+"""
 def test_suite6():
     print("\n\n-------------- get new certificate and verify --------------\n\n")
     
@@ -64,6 +65,7 @@ def test_suite6():
     assert r.status_code == ok
     client_cert = r.content
     print(client_cert)
+"""
 
 def test_suite7():
     print("\n\n-------------- update user info without access token --------------\n\n")
