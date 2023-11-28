@@ -38,12 +38,23 @@ def test_suite3():
     admin_token = r.json()["token"]
 
 def test_suite4():
+    print("\n\n-------------- get new certificate and verify --------------\n\n")
+    
+    r = requests.post(url=f"{base_url}/issue_cert", headers={"x-access-token": token}, verify=verify, cert=cert)
+    print(r.content)
+    assert r.status_code == ok
+    client_cert = r.content
+    print(client_cert)
+
+
+
+def test_suite5():
     print("\n\n-------------- access ca info from non admin user  --------------\n\n")
     r = requests.get(url=f"{base_url}/ca/admin_info", verify=verify, cert=cert, headers={"x-access-token": ts_token})
     assert r.status_code == unauthorized
     print(r.content)
 
-def test_suite5():
+def test_suite6():
     print("\n\n-------------- access ca info from admin user  --------------\n\n")
     r = requests.get(url=f"{base_url}/ca/admin_info", verify=verify, cert=cert, headers={"x-access-token": admin_token})
     assert r.status_code == ok

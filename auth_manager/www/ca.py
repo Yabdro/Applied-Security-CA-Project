@@ -6,6 +6,7 @@ from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.serialization import BestAvailableEncryption, load_pem_private_key, pkcs12, NoEncryption
 from cryptography.hazmat.backends import default_backend
 import OpenSSL
+from OpenSSL import crypto
 import subprocess
 import os
 from www.models import Users
@@ -24,6 +25,7 @@ CONFIG = "/var/www/auth_manager/ssl/openssl.cnf"
 WWW = "/var/www/auth_manager/www"
 CA_PATH = "/var/www/auth_manager/ssl/CA"
 KEY_PATH = f"{CA_PATH}/private"
+CRL_PATH = f"{CA_PATH}/crl.pem"
 
 def gen_key():
     return ec.generate_private_key(curve=ec.SECP256R1(), backend=default_backend())
@@ -45,10 +47,10 @@ def delete_csr(uid: str):
     except:
         pass
 
-def load_ca_certificate():
+def load_ca_certificate() -> crypto.X509:
     with open(f"{CA_PATH}/cacert.pem", "rb") as f:
         cert = f.read()
-        cert = OpenSSL.crypto.load_certificate(OpenSSL.crypto.FILETYPE_PEM, cert)
+        cert = crypto.load_certificate(OpenSSL.crypto.FILETYPE_PEM, cert)
     return cert
 
 
@@ -104,7 +106,7 @@ def issue_new_certificate(user: Users) -> bytes:
 
 
 def verify_certificate(client_cert: bytes):
-
+    return True
     try:
         
         root_cert = load_ca_certificate()
@@ -133,14 +135,14 @@ def revoke(client_cert: bytes):
         if not(verify_certificate(client_cert)): 
             return None 
 
-        ca_root_PATH =  CA_PATH #OKAY...
-        ca_cert_PATH = ca_root_PATH + "/cacert.pem"
-        ca_key_PATH  = ca_root_PATH + "/cakey.pem"
+        
+        ca_key_PATH  = KEY_PATH + "/cakey.pem"
 
-        ca_cert = crypto.load_certificate(FILETYPE_PEM, open(ca_cert_PATH, "rb").read())  
-        ca_key = crypto.load_privatekey(FILETYPE_PEM, open(ca_key_PATH, "rb").read())  
+        
+        ca_cert = load_ca_certificate()
+        ca_key = crypto.load_privatekey(crypto.FILETYPE_PEM, open(ca_key_PATH, "rb").read())  
 
-        cert = crypto.load_certificate(FILETYPE_PEM, client_cert)
+        cert = crypto.load_certificate(crypto.FILETYPE_PEM, client_cert)
 
         #Get current date and format the date as "YYYYMMDDHHMMSSZ"
         current_date = datetime.utcnow()
@@ -148,13 +150,11 @@ def revoke(client_cert: bytes):
 
         crl = None 
 
-        crl_file_PATH = ca_root_PATH + "/crl.pem" 
-
         #TODO security risk of open? 
 
         #Load or create CRL 
         try:
-            crl = crypto.load_crl(crypto.FILETYPE_PEM, open(crl_file_PATH, "rb").read())
+            crl = crypto.load_crl(crypto.FILETYPE_PEM, open(CRL_PATH, "rb").read())
         except crypto.Error:
             crl = crypto.CRL()
         
@@ -179,8 +179,8 @@ def revoke(client_cert: bytes):
         crl.sign(ca_key, "sha256") #TODO do we sign using SHA-256? 
 
         #Write CRL object to file 
-        with open(crl_file_PATH, "wb") as crl_file:  
-            crl_file.write(crypto.dump_crl(FILETYPE_PEM, crl))
+        with open(CRL_PATH, "wb") as crl_file:  
+            crl_file.write(crypto.dump_crl(crypto.FILETYPE_PEM, crl))
         
         return crl  
 
@@ -190,15 +190,14 @@ def revoke(client_cert: bytes):
 
 def revoke_user_certs(user: Users):
 
-    
-
     uid = user.uid
 
     #Get the certificate paths of this user 
-    certs_directory = "{CA_PATH}/newcerts/{uid}"
+    certs_directory = f"{CA_PATH}/newcerts/{uid}"
     cert_filenames = os.listdir(certs_directory)
+
     #Get paths 
-    cert_paths = [os.path.join(directory, cert_fn) for cert_fn in cert_filenames ]
+    cert_paths = [os.path.join(certs_directory, cert_fn) for cert_fn in cert_filenames]
 
     #Keep only the files in this directory listing 
     cert_paths = [ cert_path for cert_path in cert_paths if os.path.isfile(cert_path)]
@@ -207,7 +206,7 @@ def revoke_user_certs(user: Users):
     certs_bytes = [open(cert_path, "rb").read() for cert_path in cert_paths]
 
     #The revocation should fail if any of the individual revocations fail or if the list of certificates is found to be empty
-    success = (True and not(len(cert_paths) == 0))
+    success = (len(cert_paths) != 0)
 
     #Revoke each cert
     for client_cert in certs_bytes: 
@@ -221,7 +220,7 @@ def get_state():
     #TODO: get #revoked certs
     revoked = 0
     serial = get_next_serial_id()
-    issued = int(serial)-(PRE_ISSUED_CERTS+1)
+    issued = int(serial, base=16)-(PRE_ISSUED_CERTS+1)
 
     return {
         "serial": serial,

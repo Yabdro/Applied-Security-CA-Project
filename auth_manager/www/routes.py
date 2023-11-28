@@ -107,11 +107,11 @@ def get_ca_info(user: models.Users):
 @auth.token_required
 def revoke_cert(u: models.Users):
     
-    success = revoke_user_certs(u)
+    success = ca.revoke_user_certs(u)
 
     if(success): 
         #return the (re-)created CRL file 
-        return send_file(ca_root_PATH + "/crl.pem" , as_attachment=True)
+        return send_file(ca.CRL_PATH, as_attachment=True)
      # Note: an empty certificate list for this user generates failure (no CRL (re-)creation)
     else: 
         return make_response("Failure", codes.internal_server_error)

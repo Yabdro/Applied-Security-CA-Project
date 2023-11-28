@@ -51,7 +51,7 @@ def test_suite4():
     token = r.json()["token"]
 
 
-def test_suite6():
+def test_suite12():
     print("\n\n-------------- get user info with valid access token --------------\n\n")
     r = requests.get(url=f"{base_url}/users", headers={"x-access-token": token}, verify=verify, cert=cert)
     assert r.status_code == ok
