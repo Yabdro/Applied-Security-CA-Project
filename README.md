@@ -48,6 +48,6 @@ The configuration files for both Wynona's and Dakota's webserver are located in 
 
 
 # General
-For reaching the Webserver from the Client machine, we reccomend using Chrome as we have had problems importing our generated client-certificates into Firefox. If you really want to use Firefox, we have found that importing a certificate into Chrome, then exporting it and importing that into Firefox will actually work.
+To reach the Webserver from the client machine, just open a browser and type `https://imovies.asl.com` or `https://Wynona`. The only CA admin out of all the user is Patrick Schaller, so if you want to access the CA admin interface you need to use his account (and certificate-based authentication). We reccomend using Chrome as we have had problems importing our generated client-certificates into Firefox. If you really want to use Firefox, we have found that importing a certificate into Chrome, then exporting it and importing that into Firefox will actually work.
 
-Once inside the internal network, SSH access should work without password authentication from every machine, except for the Webserver (Wynona). I.e. to access machine Dakota from inside Benedict, you would execute `ssh dakota@Dakota`. SSH access from Wynona to other internal machines has been disabled for security purposes.
+Once inside the internal network, SSH access should work without password authentication from every machine, except for the Webserver (Wynona). SSH access from Wynona to other internal machines has been disabled for security purposes. For example, to access machine Dakota from inside Benedict, you would execute `ssh dakota@Dakota`
