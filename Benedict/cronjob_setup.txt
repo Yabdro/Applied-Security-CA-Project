@@ -1,0 +1,4 @@
+crontab -e
+
+# Add the following line
+0 * * * * /home/launch_backup_process.sh
