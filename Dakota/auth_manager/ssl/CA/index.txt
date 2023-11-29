@@ -1,0 +1,9 @@
+V	241111152249Z		01	unknown	/C=CH/ST=Zurich/O=ETHZ/OU=Applied Sec Lab/CN=auth_manager
+V	241111152702Z		02	unknown	/C=CH/ST=Zurich/O=ETHZ/OU=Applied Sec Lab/CN=imovies_ca
+R	241127123609Z	231128123806Z	03	unknown	/C=CH/ST=Zurich/O=ETHZ/OU=Applied Sec Lab/CN=Daniele/emailAddress=test/UID=ts
+R	241127131343Z	231128131533Z	04	unknown	/C=CH/ST=Zurich/O=ETHZ/OU=Applied Sec Lab/CN=Daniele/emailAddress=test/UID=ts
+R	241127134154Z	231128140559Z	05	unknown	/C=CH/ST=Zurich/O=ETHZ/OU=Applied Sec Lab/CN=Daniele/emailAddress=test/UID=ts
+V	241127140645Z		06	unknown	/C=CH/ST=Zurich/O=ETHZ/OU=Applied Sec Lab/CN=Daniele/emailAddress=test/UID=ts
+R	241127141614Z	231128141714Z	07	unknown	/C=CH/ST=Zurich/O=ETHZ/OU=Applied Sec Lab/CN=Patrick/emailAddress=ps@imovies.ch/UID=ps
+V	241127142500Z		08	unknown	/C=CH/ST=Zurich/O=ETHZ/OU=Applied Sec Lab/CN=Patrick/emailAddress=ps@imovies.ch/UID=ps
+V	241128130547Z		09	unknown	/C=CH/ST=Zurich/O=ETHZ/OU=Applied Sec Lab/CN=Lukas/emailAddress=lb@imovies.ch/UID=lb

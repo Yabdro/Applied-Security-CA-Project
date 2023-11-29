@@ -43,9 +43,9 @@ def cert_login():
     user = None
     valid = False
     try: 
-        valid = ca.check_against_crl(crt.encode())
         uid = ca.parse_certificate(crt.encode()) 
         user = models.get_user(uid)
+        valid = ca.check_against_crl(crt.encode())
     except Exception as e:
         print(e)
 
@@ -105,6 +105,7 @@ def issue_cert(u: models.Users):
 def get_ca_info(user: models.Users):
     return make_response(ca.get_state(), 200)
 
+
 # Revoke ALL certificates associated with user 
 @app.route("/revoke", methods=["POST"])
 @auth.token_required
@@ -112,12 +113,12 @@ def revoke_cert(u: models.Users):
     try:
         success = ca.revoke_user_certs(u)
 
-        #return the CRL file 
-        if(success): 
+        #return the CRL file
+        if(success):
             resp = send_file(ca.CRL_PATH, as_attachment=True)
             resp.status_code = codes.created
             return resp
-        else: 
+        else:
             return make_response("No certificates to revoke for current user", codes.ok)
     except:
         make_response("Something went wrong while revoking certificate", codes.unauthorized)

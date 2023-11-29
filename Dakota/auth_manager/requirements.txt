@@ -1,0 +1,7 @@
+flask
+flask_migrate
+flask_sqlalchemy
+argon2-cffi
+pymysql
+requests
+pyjwt

@@ -1,0 +1,2 @@
+V	241111152249Z		01	unknown	/C=CH/ST=Zurich/O=ETHZ/OU=Applied Sec Lab/CN=auth_manager
+V	241111152702Z		02	unknown	/C=CH/ST=Zurich/O=ETHZ/OU=Applied Sec Lab/CN=imovies_ca

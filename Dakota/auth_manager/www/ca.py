@@ -149,22 +149,23 @@ def parse_certificate(client_cert: bytes):
 
 
 def check_against_crl(client_cert: bytes):
-    client_cert = client_cert.removeprefix(b"-----BEGIN CERTIFICATE-----").removesuffix(b"-----END CERTIFICATE----- ").replace(b" ", b"\r\n")
-    client_cert = b"-----BEGIN CERTIFICATE-----"+client_cert+b"-----END CERTIFICATE-----\r\n"
-    client_cert = x509.load_pem_x509_certificate(client_cert)
+	client_cert = client_cert.removeprefix(b"-----BEGIN CERTIFICATE-----").removesuffix(b"-----END CERTIFICATE----- ").replace(b" ", b"\r\n")
+	client_cert = b"-----BEGIN CERTIFICATE-----"+client_cert+b"-----END CERTIFICATE-----\r\n"
+	client_cert = x509.load_pem_x509_certificate(client_cert)
 
-    cert_path = "/var/www/auth_manager/tocheck.pem"
-    with open(cert_path, 'wb') as f:
-        f.write(client_cert.public_bytes(encoding=serialization.Encoding.PEM))
+	cert_path = "/var/www/auth_manager/tocheck.pem"
+	revoked_path = "/var/www/auth_manager/revoked.pem"
+	with open(cert_path, 'wb') as f:
+		f.write(client_cert.public_bytes(encoding=serialization.Encoding.PEM))
 
-    ret = subprocess.call(f"/var/www/auth_manager/www/./check_against_crl.sh".split(" "))
-    # ret = subprocess.call(f"openssl verify -CAfile revoked.pem -crl_check {cert_path}".split(" "))
-    # os.remove(cert_path)
-    # os.remove("/var/www/auth_manager/revoked.pem")
-    if ret == 0:
-        return True
-    return False
-
+	ret = subprocess.call(f"/var/www/auth_manager/www/./check_against_crl.sh".split(" "))
+#	print("Executed script.\n")
+#	ret = subprocess.call(f"openssl verify -CAfile {revoked_path} -crl_check {cert_path}".split(" "))
+#	os.remove(cert_path)
+#	os.remove("/var/www/auth_manager/revoked.pem")
+	if ret == 0:
+		return True
+	return False
 
 def revoke_user_certs(user: Users):
     uid = user.uid
@@ -194,12 +195,12 @@ def revoke_user_certs(user: Users):
 def get_state():
     
     serial = get_next_serial_id()
-    
+    print(f"SERIAL {serial}")
     issued = int(serial, base=16)-(PRE_ISSUED_CERTS+1)
-    
+    print(f"ISSUED {issued}")
     revoked = get_next_revoked_id()
     revoked = int(revoked, base=16) - 1
-
+    print(f"REVOKED {revoked}")
     return json.dumps({
         "serial": serial,
         "issued": issued,
