@@ -1,7 +1,7 @@
 # Applied-Security-CA-Project
 
 # How to import our project
-- Download the .ova files of all 4 machines
+- Download the .ova files of all 5 machines
 - For each VM:
     - double-click on the .ova to import it in VirtualBox
     - select 'Include all network adapter MAC Addresses'
