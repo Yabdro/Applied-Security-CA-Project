@@ -1,4 +1,30 @@
-- reset ufw setting								ufw reset
-- enable ufw									ufw enable
-- set default rules ( allow outgoing / deny incoming)				ufw default deny incoming + ufw default allow outgoing
-- Enable incoming connections from cate:					ufw allow from 192.168.1.14 to any port 22
+benedict ufw setup
+
+only grace can ssh to benedict
+
+
+# Commands
+# setup:
+ufw reset
+ufw enable
+
+#set default rules
+ufw default deny incoming 
+ufw default allow outgoing
+
+#enable incoming connection from grace
+ufw allow from 192.168.1.14 to any port 22
+
+
+
+
+Result:
+Status: active
+Logging: on (low)
+Default: deny (incoming), allow (outgoing), disabled (routed)
+New profiles: skip
+
+To                         Action      From
+--                         ------      ----
+22                         ALLOW IN    192.168.1.114
+
