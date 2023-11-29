@@ -62,7 +62,7 @@ def cert_login():
 
 
 
-# Login user
+# Login user with credentials
 @app.route("/login", methods=["POST"])
 def login():
     try:
@@ -95,6 +95,8 @@ def login():
     except Exception as e:
         return make_response(f"unauthorized: {traceback.format_exc()}", codes.unauthorized)
 
+
+#Query Dakota for current CA info
 @app.route("/cert-authenticated/ca_admin", methods=["GET"])
 def ca_admin():
     try:
@@ -158,7 +160,7 @@ def update_cred():
 
 
 
-# Apply changes to a user data
+# Forward request to Dakota to issue certificate
 @app.route("/issue_cert", methods=["GET"])
 def issue_cert():
     try: 
@@ -189,7 +191,7 @@ def issue_cert():
         return make_response(f"unauthorized: {traceback.format_exc()}", codes.unauthorized)
 
 
-# Apply changes to a user data
+# Query Dakota to revoke all certiicates associated with current user then update CRL
 @app.route("/revoke_cert", methods=["GET"])
 def revoke_cert():
     try: 
@@ -216,6 +218,7 @@ def revoke_cert():
         return make_response(f"unauthorized: {traceback.format_exc()}", codes.unauthorized)
 
 
+# Send new PKCS12 certificate to client
 @app.route('/download_cert')
 def download_cert():
     try:

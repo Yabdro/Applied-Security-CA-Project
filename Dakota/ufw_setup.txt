@@ -1,7 +1,7 @@
 Dakota ufw setup
 
 * only allow ssh connection coming from grace 192.168.1.114  (port 22)
-* only allow https connection cming from wynona 192.168.1.112 (port 443)
+* only allow https connection cming from wynona 192.168.1.111 (port 443)
 * deny all trafic coming to port 80
 
 
@@ -19,7 +19,7 @@ ufw default allow outgoing
 sudo ufw allow from 192.168.1.114 to any port 22
 
 # allow https from wynona
-sudo ufw allow from 192.168.1.112 to any port 443
+sudo ufw allow from 192.168.1.111 to any port 443
 
 # deny all for port 80
 sudo ufw deny 80
@@ -35,6 +35,6 @@ New profiles: skip
 To                         Action      From
 --                         ------      ----
 22                         ALLOW IN    192.168.1.114
-443                        ALLOW IN    192.168.1.112
+443                        ALLOW IN    192.168.1.111
 80                         DENY IN     Anywhere
 80 (v6)                    DENY IN     Anywhere (v6)

@@ -1,7 +1,7 @@
 # Applied-Security-CA-Project
 
 # How to import our project
-- Download the .ova files of all 5 machines
+- Download the .ova files of all machines
 - For each VM:
     - double-click on the .ova to import it in VirtualBox
     - select 'Include all network adapter MAC Addresses'
@@ -36,7 +36,7 @@ Webserver machine (Wynona) user accounts:
 - root:wynona
 - wynona:wynona
 
-Database machine (Dakota) user accounts:
+Database and CA machine (Dakota) user accounts:
 - root:dakota
 - dakota:dakota
 
@@ -52,6 +52,6 @@ The configuration files for both Wynona's and Dakota's webserver are located in 
 
 
 # General
-To reach the Webserver from the client machine, just open a browser and type `https://imovies.asl.com` or `https://Wynona`. The only CA admin out of all the user is Patrick Schaller, so if you want to access the CA admin interface you need to use his account (and certificate-based authentication). We reccomend using Chrome as we have had problems importing our generated client-certificates into Firefox. If you really want to use Firefox, we have found that importing a certificate into Chrome, then exporting it and importing that into Firefox will actually work.Other users (except for Lukas Bruegger) do not have a certificate installed already, so for the first login you will need to use credentials.
+To reach the Webserver from the client machine, just open a browser and type `https://imovies.asl.com` or `https://Wynona`. The only CA admin out of all the user is Patrick Schaller, so if you want to access the CA admin interface you need to use his account (and certificate-based authentication). We reccomend using Chrome as we have had problems importing our generated client-certificates into Firefox. If you want to use Firefox, we have found that importing a certificate into Chrome, then exporting it and importing that into Firefox will actually work.Other users (except for Lukas Bruegger) do not have a certificate installed already, so for the first login you will need to use credentials. To import the certificate you need do it from inside the browsers settings and not by opening the .pfx file.
 
-Once inside the internal network, SSH access should work without password authentication from every machine, except for the Webserver (Wynona). SSH access from Wynona to other internal machines has been disabled for security purposes. For example, to access machine Dakota from inside Cate, you would execute `ssh root@Dakota`.
+Once inside the internal network, SSH access should work without password authentication from every machine, except for the Webserver (Wynona). SSH access from Wynona to other internal machines has been disabled for security purposes. For example, to access machine Dakota from Cate, you would execute `ssh root@Dakota`.
