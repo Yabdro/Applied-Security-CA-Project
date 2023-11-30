@@ -13,7 +13,7 @@
     - Dakota for the Database and CA
     - Benedict for the Backups
     - Grace for the sysadmin access Gateway
-- The IP addresses for the internal network (and for the fake internet network) are static, and the /etc/hosts files of every machine contain the aliases for the IP addresses of the other (relevant) machines (e.g. doing `ping Dakota` from the Webserver will ping the Database machine).
+- The IP addresses for the internal network (and for the fake internet network) are static, and the /etc/hosts files of every machine contain the aliases for the other (relevant) machines (e.g. doing `ping Dakota` from the Webserver will ping the Database machine).
 
 
 # Network info
@@ -53,7 +53,7 @@ Backup machine (Benedict) user accounts:
 
 Gateway machine (Grace) user accounts:
 - root:root
-- sysadmin:root
+- sysadmin:sysadmin
 
 # Config Info
 The configuration files for both Wynona's and Dakota's webserver are located in `/etc/apache2/sites-availabe` on the respective machine. The Web directories are in `/var/www/imovies` and `/var/www/auth_manager` respectively. A copy of these two directories and of both config files can be found in this repository.
